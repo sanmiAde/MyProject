@@ -3,3 +3,41 @@ title: "R Notebook"
 output: html_notebook
 ---
 
+```{r}
+library(readxl)
+library(tidyverse)
+library(car)
+
+Concrete_Data <- read_excel("C:/Users/HP DV6/Downloads/Concrete_Data.xls")
+
+# Rename column name to make it easier to operate on.
+Concrete_Data <- rename(Concrete_Data,
+  concrete = `Concrete compressive strength(MPa, megapascals)`,
+  cement = `Cement (component 1)(kg in a m^3 mixture)`,
+  b_furnace = `Blast Furnace Slag (component 2)(kg in a m^3 mixture)`,
+  water = `Water  (component 4)(kg in a m^3 mixture)`,
+  superpl = `Superplasticizer (component 5)(kg in a m^3 mixture)`,
+  c_aggregate = `Coarse Aggregate  (component 6)(kg in a m^3 mixture)`,
+  f_aggregate = `Fine Aggregate (component 7)(kg in a m^3 mixture)`,
+  age = `Age (day)`,
+  fly_ash = `Fly Ash (component 3)(kg in a m^3 mixture)`
+  
+  
+)
+train <- Concrete_Data[1:900,]
+test <- Concrete_Data[901:1030,]
+
+```
+
+Graphical analysis of concrete data set.
+```{r}
+
+```
+
+Examining bivariate relationship between depedent variable.
+```{r}
+cor(Concrete_Data)
+scatterplotMatrix(Concrete_Data, spread=FALSE, smoother.args=list(lty=2),
+main="Scatter Plot Matrix")
+
+```
