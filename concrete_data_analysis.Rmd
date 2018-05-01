@@ -1,6 +1,8 @@
 ---
 title: "R Notebook"
-output: html_notebook
+output:
+  word_document: default
+  html_notebook: default
 ---
 
 ```{r}
@@ -34,10 +36,60 @@ Graphical analysis of concrete data set.
 
 ```
 
-Examining bivariate relationship between depedent variable.
+Examining bivariate relationship between dependent variables to determine if interaction effect exist.
+
 ```{r}
 cor(Concrete_Data)
 scatterplotMatrix(Concrete_Data, spread=FALSE, smoother.args=list(lty=2),
 main="Scatter Plot Matrix")
 
 ```
+
+Fitting a muitlple linear regression on the data set.
+```{r}
+lm_fit <- lm(concrete ~ ., data = train)
+summary(lm_fit)
+```
+
+There is a relationship between the response and predicator variables with a F-statistic of 176.2 and a p-value of < 2.2e-16.
+Most of the predicator variables are statistically significant save two, c_aggregate and f_aggregate.Overall, this model accounts for 60.92% of concrete's variance.
+
+Diagnosing the model.
+```{r}
+plot(lm_fit)
+```
+The Residuals vs Fitted plot shows elements of heteroscedasticity. The plot also shows 382, 384 and 225 are outliers.
+The Residuals vs Leverage shows 225 ,711, and 55 have high leverages.
+
+Removing outliers, variables with high leverage, and also log transforming the response variable.
+```{r}
+train <- filter(train, !cement %in% c(315,516,212.52,305.3,189.6))
+lm_fit2 <- lm(concrete~.-c_aggregate-f_aggregate, train)
+summary(lm_fit2)
+plot(lm_fit2)
+```
+After removing outliers the model R-squared increased from 0.6092 to 0.6129, and the RSE reduces from 10.76 to 10.7. 
+
+Fitting interactions into the model.
+```{r}
+lm_fit3 <- lm(concrete~.-c_aggregate -f_aggregate + superpl : water    , train)
+summary(lm_fit3)
+plot(lm_fit3)
+```
+After fitting the interaction effect into the dataset. The model accounts for 62.36 % of the variance in concrete compressive strength.
+
+Testing the model and compute the R^2 of the predicted values.
+```{r}
+
+predicted_values <- predict(lm_fit3, test)
+predicted_values <- data.frame(predicted_values)
+predicted_values <- cbind(predicted_values, test$concrete)
+
+SSE <- sum((predicted_values$`test$concrete` - predicted_values$predicted_values  ) ^ 2)
+SST  <- sum((predicted_values$`test$concrete` - mean(predicted_values$`test$concrete`)) ^ 2)
+
+
+print(1 - SSE/ SST)
+
+```
+The linear model explained 56.40% of test data's concrete varaince.
